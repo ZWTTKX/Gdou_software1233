@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教师发布公告</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg: #fefefe; 
+      --card: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+    }
+    body { 
+      background-color: var(--bg); 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    .card { background: var(--card); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .input-base { 
+      width: 100%; 
+      padding: 8px 12px; 
+      border: 1px solid var(--border); 
+      border-radius: 8px; 
+      transition: all 0.3s;
+      background-color: var(--card); 
+    }
+    .input-base:focus { 
+      outline: none; 
+      border-color: var(--primary); 
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .btn { 
+      padding: 8px 16px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #059669; transform: translateY(-1px); }
+    .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f8fafc; }
+    .glass { 
+      backdrop-filter: blur(10px); 
+      background: rgba(255, 255, 255, 0.9); 
+      border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+  <header class="glass fixed top-0 left-0 right-0 z-30">
+    <div class="flex items-center justify-between px-6 h-16">
+      <div class="flex items-center gap-3">
+        <i class="fa fa-bullhorn text-blue-500 text-xl"></i>
+        <h1 class="font-bold text-lg hidden sm:block text-blue-900">教师公告管理</h1>
+      </div>
+      <button class="btn btn-outline">
+        <i class="fa fa-home"></i><span class="hidden sm:inline">返回</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="pt-20 p-6 max-w-4xl mx-auto" id="app">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-blue-900 mb-2">教师发公告</h2>
+      <div class="flex items-center gap-2 text-gray-500 text-sm">
+        <a href="#" class="hover:text-blue-500">教师主页</a>
+        <i class="fa fa-angle-right"></i>
+        <span>发布新公告</span>
+      </div>
+    </div>
+
+    <!-- 发布公告卡片（核心模块） -->
+    <div class="card p-6">
+      <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
+        <i class="fa fa-pencil text-blue-500"></i>发布新公告
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- 公告标题 -->
+        <div class="md:col-span-2">
+          <label class="block text-gray-600 font-medium mb-2 text-sm">公告标题 <span class="text-red-500">*</span></label>
+          <input 
+            type="text" 
+            class="input-base" 
+            v-model="newAnnouncement.announcement_title" 
+            placeholder="请输入公告标题（如：关于期中考试安排的通知）"
+            maxlength="50"
+          >
+        </div>
+
+        <!-- 公告类型 -->
+        <div>
+          <label class="block text-gray-600 font-medium mb-2 text-sm">公告类型 <span class="text-red-500">*</span></label>
+          <select class="input-base" v-model="newAnnouncement.announcement_type">
+            <option value="">请选择类型</option>
+            <option value="exam">考试安排</option>
+            <option value="course">课程通知</option>
+            <option value="meeting">会议通知</option>
+            <option value="other">其他通知</option>
+          </select>
+        </div>
+
+        <!-- 接收班级（使用数据库class_id字段） -->
+        <div>
+          <label class="block text-gray-600 font-medium mb-2 text-sm">接收班级 <span class="text-red-500">*</span></label>
+          <select class="input-base" v-model="newAnnouncement.class_id">
+            <option value="">请选择班级</option>
+            <option value="all">全部班级</option>
+            <option value="cs202301">计算机2301班</option>
+            <option value="cs202302">计算机2302班</option>
+            <option value="cs202303">计算机2303班</option>
+            <option value="cs202304">计算机2304班</option>
+          </select>
+        </div>
+
+        <!-- 生效日期 -->
+        <div>
+          <label class="block text-gray-600 font-medium mb-2 text-sm">生效日期 <span class="text-red-500">*</span></label>
+          <input 
+            type="date" 
+            class="input-base" 
+            v-model="newAnnouncement.announcement_effect_date"
+            :min="today"
+          >
+        </div>
+
+        <!-- 附件（可选） -->
+        <div>
+          <label class="block text-gray-600 font-medium mb-2 text-sm">附件（可选）</label>
+          <div class="flex items-center gap-3">
+            <input type="file" class="file:input-base file:mr-4 file:py-2 file:px-4" accept=".pdf,.doc,.docx,.xlsx">
+            <span class="text-xs text-gray-400">支持PDF、Word、Excel格式</span>
+          </div>
+        </div>
+
+        <!-- 公告内容 -->
+        <div class="md:col-span-2">
+          <label class="block text-gray-600 font-medium mb-2 text-sm">公告内容 <span class="text-red-500">*</span></label>
+          <textarea 
+            class="input-base" 
+            rows="6" 
+            v-model="newAnnouncement.announcement_content" 
+            placeholder="请输入公告详细内容（如：期中考试时间为11月15日，地点在A栋教学楼，需携带学生证入场...）"
+            maxlength="1000"
+          ></textarea>
+          <p class="text-xs text-gray-400 mt-2">已输入 {{ newAnnouncement.announcement_content.length }}/1000 字符</p>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="flex justify-end gap-4">
+        <button class="btn btn-outline" @click="resetForm">
+          <i class="fa fa-refresh"></i>重置表单
+        </button>
+        <button class="btn btn-success" @click="publishAnnouncement">
+          <i class="fa fa-send"></i>确认发布
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // 初始化 Vue 实例
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          // 新公告表单数据
+          newAnnouncement: {
+            announcement_title: '',   
+            announcement_type: '',     
+            class_id: '',             
+            announcement_effect_date: '',
+            announcement_content: '', 
+            teacher_id: ''            
+          },
+          today: '' 
+        };
+      },
+      mounted() {
+        // 初始化今日日期（格式：YYYY-MM-DD）
+        this.today = new Date().toISOString().split('T')[0];
+        // 实际场景中，教师ID从登录态获取（示例：this.newAnnouncement.teacher_id = 'T2023001'）
+      },
+      methods: {
+        // 重置表单
+        resetForm() {
+          if (confirm('确定要重置表单吗？已输入的内容将清空')) {
+            this.newAnnouncement = {
+              announcement_title: '',
+              announcement_type: '',
+              class_id: '',
+              announcement_effect_date: '',
+              announcement_content: '',
+              teacher_id: this.newAnnouncement.teacher_id 
+            };
+          }
+        },
+        // 发布公告（核心逻辑）
+        publishAnnouncement() {
+          const { 
+            announcement_title, 
+            announcement_type, 
+            class_id, 
+            announcement_effect_date, 
+            announcement_content,
+            teacher_id
+          } = this.newAnnouncement;
+          
+          // 表单验证
+          if (!announcement_title.trim()) return alert('请输入公告标题！');
+          if (!announcement_type) return alert('请选择公告类型！');
+          if (!class_id) return alert('请选择接收班级！');
+          if (!announcement_effect_date) return alert('请选择生效日期！');
+          if (!announcement_content.trim()) return alert('请输入公告内容！');
+          if (!teacher_id) return alert('发布教师ID未获取，请重新登录！');
+
+          // 模拟发布请求
+          if (confirm(`确定要发布公告《${announcement_title}》吗？`)) {
+            alert('公告发布成功！');
+            this.resetForm();
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
