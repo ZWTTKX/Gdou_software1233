@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户注册 - 校园管理系统</title>
+  <style>
+    :root {
+      --primary-color: #4a6ee0;
+      --primary-hover: #3a5ec0;
+      --secondary-color: #6c757d;
+      --success-color: #2ecc71;
+      --error-color: #e74c3c;
+      --border-radius: 8px;
+      --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      width: 100%;
+      max-width: 500px;
+      padding: 40px 35px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+      font-weight: 600;
+      font-size: 28px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+
+    .user-type-selector {
+      display: flex;
+      margin-bottom: 25px;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      background-color: #f8f9fa;
+    }
+
+    .user-type-selector label {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .user-type-selector input[type="radio"] {
+      display: none;
+    }
+
+    .user-type-selector input[type="radio"]:checked+span {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 500;
+    }
+
+    .user-type-selector span {
+      display: block;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .user-type-selector label:hover span {
+      background-color: #e9ecef;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      transition: all 0.3s;
+      background-color: #fff;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(74, 110, 224, 0.1);
+    }
+
+    input:disabled {
+      background-color: #f5f5f5;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s;
+      margin-bottom: 15px;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    .btn-loading {
+      position: relative;
+      color: transparent;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin-left: -10px;
+      margin-top: -10px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-right-color: transparent;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .error-message {
+      color: var(--error-color);
+      font-size: 13px;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .success-message {
+      color: var(--success-color);
+      font-size: 14px;
+      margin-top: 5px;
+      text-align: center;
+      padding: 10px;
+      background-color: #d4edda;
+      border-radius: var(--border-radius);
+    }
+
+    .password-strength {
+      margin-top: 5px;
+      height: 4px;
+      border-radius: 2px;
+      background-color: #e0e0e0;
+      overflow: hidden;
+    }
+
+    .password-strength-bar {
+      height: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .strength-weak {
+      background-color: #e74c3c;
+      width: 33%;
+    }
+
+    .strength-medium {
+      background-color: #f39c12;
+      width: 66%;
+    }
+
+    .strength-strong {
+      background-color: #2ecc71;
+      width: 100%;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+        margin: 10px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .user-type-selector {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">校园管理系统</div>
+    <h1>用户注册</h1>
+
+    <div class="user-type-selector">
+      <label>
+        <input type="radio" name="userType" value="student" checked>
+        <span>学生</span>
+      </label>
+      <label>
+        <input type="radio" name="userType" value="teacher">
+        <span>教师</span>
+      </label>
+      <label>
+        <input type="radio" name="userType" value="counselor">
+        <span>辅导员</span>
+      </label>
+    </div>
+
+    <form id="registerForm" novalidate>
+      <!-- 公共字段 -->
+      <div class="form-group">
+        <label for="name">姓名</label>
+        <input type="text" id="name" name="name" required placeholder="请输入真实姓名">
+      </div>
+
+      <div class="form-group">
+        <label for="phone">手机号</label>
+        <input type="tel" id="phone" name="phone" required placeholder="请输入11位手机号" pattern="[0-9]{11}">
+      </div>
+
+      <div class="form-group">
+        <label for="password">密码</label>
+        <div style="position: relative;">
+          <input type="password" id="password" name="password" required minlength="6" placeholder="至少6位密码">
+          <button type="button" class="password-toggle" id="passwordToggle">👁️</button>
+        </div>
+        <div class="password-strength">
+          <div class="password-strength-bar" id="passwordStrength"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">确认密码</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="请再次输入密码">
+        <div id="passwordError" class="error-message hidden">两次输入的密码不一致</div>
+      </div>
+
+      <!-- 学生特定字段 -->
+      <div id="studentFields">
+        <div class="form-group">
+          <label for="studentId">学号</label>
+          <input type="text" id="studentId" name="studentId" required>
+        </div>
+
+        <div class="form-group">
+          <label for="classId">班级ID</label>
+          <input type="text" id="classId" name="classId" required>
+        </div>
+
+        <div class="form-group">
+          <label for="assignedCounselorId">辅导员ID</label>
+          <input type="text" id="assignedCounselorId" name="assignedCounselorId" required>
+        </div>
+
+        <div class="form-group">
+          <label for="headTeacherId">班主任ID</label>
+          <input type="text" id="headTeacherId" name="headTeacherId" required>
+        </div>
+      </div>
+
+      <!-- 教师特定字段 -->
+      <div id="teacherFields" class="hidden">
+        <div class="form-group">
+          <label for="teacherId">教师工号</label>
+          <input type="text" id="teacherId" name="teacherId" required>
+        </div>
+
+        <div class="form-group">
+          <label for="teacherRole">角色</label>
+          <select id="teacherRole" name="teacherRole" required>
+            <option value="">请选择角色</option>
+            <option value="NORMAL">普通教师</option>
+            <option value="HEAD_TEACHER">班主任</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="teacherClassId">关联班级ID</label>
+          <input type="text" id="teacherClassId" name="teacherClassId">
+        </div>
+      </div>
+
+      <!-- 辅导员特定字段 -->
+      <div id="counselorFields" class="hidden">
+        <div class="form-group">
+          <label for="counselorEmployeeId">辅导员工号</label>
+          <input type="text" id="counselorEmployeeId" name="counselorEmployeeId" required>
+        </div>
+
+        <div class="form-group">
+          <label for="department">所属院系</label>
+          <input type="text" id="department" name="department" required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">注册</button>
+      <a href="login.html">返回登录界面</a>
+    </form>
+
+    <div id="successMessage" class="success-message hidden"></div>
+  </div>
+
+  <script>
+    class RegisterManager {
+      constructor() {
+        this.init();
+      }
+
+      init() {
+        this.bindEvents();
+        this.showUserFields('student');
+        this.updateTeacherClassIdField();
+      }
+
+      bindEvents() {
+        // 用户类型切换
+        document.querySelectorAll('input[name="userType"]').forEach(radio => {
+          radio.addEventListener('change', (e) => {
+            this.showUserFields(e.target.value);
+          });
+        });
+
+        // 教师角色切换处理
+        document.getElementById('teacherRole').addEventListener('change', () => {
+          this.updateTeacherClassIdField();
+        });
+
+        // 密码显示/隐藏切换
+        document.getElementById('passwordToggle').addEventListener('click', () => {
+          this.togglePasswordVisibility();
+        });
+
+        // 实时密码强度检测
+        document.getElementById('password').addEventListener('input', (e) => {
+          this.checkPasswordStrength(e.target.value);
+        });
+
+        // 实时密码匹配验证
+        document.getElementById('confirmPassword').addEventListener('input', () => {
+          this.validatePasswordMatch();
+        });
+
+        // 表单提交
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+          this.handleSubmit(e);
+        });
+      }
+
+      showUserFields(userType) {
+        // 禁用所有隐藏字段的验证
+        document.querySelectorAll('#studentFields input, #teacherFields input, #teacherFields select, #counselorFields input').forEach(input => {
+          input.disabled = true;
+          input.removeAttribute('required');
+        });
+
+        // 隐藏所有字段区域
+        document.getElementById('studentFields').classList.add('hidden');
+        document.getElementById('teacherFields').classList.add('hidden');
+        document.getElementById('counselorFields').classList.add('hidden');
+
+        // 显示对应字段区域
+        if (userType === 'student') {
+          document.getElementById('studentFields').classList.remove('hidden');
+          // 启用学生字段
+          document.querySelectorAll('#studentFields input').forEach(input => {
+            input.disabled = false;
+            input.setAttribute('required', 'true');
+          });
+        } else if (userType === 'teacher') {
+          document.getElementById('teacherFields').classList.remove('hidden');
+          document.querySelectorAll('#teacherFields input, #teacherFields select').forEach(input => {
+            input.disabled = false;
+            if (input.id !== 'teacherClassId') {
+              input.setAttribute('required', 'true');
+            }
+          });
+          this.updateTeacherClassIdField();
+        } else if (userType === 'counselor') {
+          document.getElementById('counselorFields').classList.remove('hidden');
+          document.querySelectorAll('#counselorFields input').forEach(input => {
+            input.disabled = false;
+            input.setAttribute('required', 'true');
+          });
+        }
+      }
+
+      updateTeacherClassIdField() {
+        const teacherRoleSelect = document.getElementById('teacherRole');
+        const teacherClassIdInput = document.getElementById('teacherClassId');
+
+        if (teacherRoleSelect.value === 'NORMAL') {
+          teacherClassIdInput.disabled = true;
+          teacherClassIdInput.removeAttribute('required');
+          teacherClassIdInput.placeholder = '普通教师无需填写班级ID';
+        } else {
+          teacherClassIdInput.disabled = false;
+          teacherClassIdInput.setAttribute('required', 'true');
+          teacherClassIdInput.placeholder = '';
+        }
+      }
+
+      togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = document.getElementById('passwordToggle');
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          toggleButton.textContent = '🔒';
+        } else {
+          passwordInput.type = 'password';
+          toggleButton.textContent = '👁️';
+        }
+      }
+
+      checkPasswordStrength(password) {
+        const strengthBar = document.getElementById('passwordStrength');
+        let strength = 'weak';
+
+        if (password.length >= 12) {
+          strength = 'strong';
+        } else if (password.length >= 8) {
+          strength = 'medium';
+        }
+
+        strengthBar.className = `password-strength-bar strength-${strength}`;
+      }
+
+      validatePasswordMatch() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const errorElement = document.getElementById('passwordError');
+
+        if (confirmPassword && password !== confirmPassword) {
+          errorElement.classList.remove('hidden');
+          return false;
+        } else {
+          errorElement.classList.add('hidden');
+          return true;
+        }
+      }
+
+      validateForm() {
+        let isValid = true;
+
+        // 验证公共字段
+        const name = document.getElementById('name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!name) {
+          alert('请输入姓名');
+          return false;
+        }
+
+        if (!this.validatePhone(phone)) {
+          alert('请输入有效的手机号');
+          return false;
+        }
+
+        if (password.length < 6) {
+          alert('密码长度至少6位');
+          return false;
+        }
+
+        if (!this.validatePasswordMatch()) {
+          return false;
+        }
+
+        // 验证特定字段
+        const userType = document.querySelector('input[name="userType"]:checked').value;
+
+        if (userType === 'student') {
+          const studentId = document.getElementById('studentId').value.trim();
+          const classId = document.getElementById('classId').value.trim();
+          const counselorId = document.getElementById('assignedCounselorId').value.trim();
+          const headTeacherId = document.getElementById('headTeacherId').value.trim();
+
+          if (!studentId || !classId || !counselorId || !headTeacherId) {
+            alert('请填写完整的学生信息');
+            return false;
+          }
+        } else if (userType === 'teacher') {
+          const teacherId = document.getElementById('teacherId').value.trim();
+          const teacherRole = document.getElementById('teacherRole').value;
+          const teacherClassId = document.getElementById('teacherClassId').value.trim();
+
+          if (!teacherId || !teacherRole) {
+            alert('请填写完整的教师信息');
+            return false;
+          }
+
+          if (teacherRole === 'HEAD_TEACHER' && !teacherClassId) {
+            alert('班主任必须填写关联班级ID');
+            return false;
+          }
+        } else if (userType === 'counselor') {
+          const counselorId = document.getElementById('counselorEmployeeId').value.trim();
+          const department = document.getElementById('department').value.trim();
+
+          if (!counselorId || !department) {
+            alert('请填写完整的辅导员信息');
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      validatePhone(phone) {
+        return /^1[3-9]\d{9}$/.test(phone);
+      }
+
+      async handleSubmit(e) {
+        e.preventDefault();
+
+        if (!this.validateForm()) {
+          return;
+        }
+
+        // 显示加载状态
+        this.setLoadingState(true);
+
+        try {
+          const formData = new FormData(document.getElementById('registerForm'));
+          const userType = document.querySelector('input[name="userType"]:checked').value;
+
+          // 根据用户类型构建数据对象
+          let userData = {
+            name: formData.get('name'),
+            phone: formData.get('phone'),
+            password: document.getElementById('password').value,
+            userType: userType
+          };
+
+          // 根据用户类型添加特定字段
+          if (userType === 'student') {
+            userData.student_id = formData.get('studentId');
+            userData.class_id = formData.get('classId');
+            userData.counselor_id = formData.get('assignedCounselorId');
+            userData.head_teacher_id = formData.get('headTeacherId');
+          } else if (userType === 'teacher') {
+            userData.teacher_id = formData.get('teacherId');
+            userData.role = formData.get('teacherRole');
+            if (userData.role === 'HEAD_TEACHER') {
+              userData.class_id = formData.get('teacherClassId');
+            }
+          } else if (userType === 'counselor') {
+            userData.counselor_id = formData.get('counselorEmployeeId');
+            userData.department = formData.get('department');
+          }
+
+          // 发送注册请求到后端
+          const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            this.showSuccessMessage();
+          } else {
+            throw new Error(data.message || '注册失败，请重试');
+          }
+
+        } catch (error) {
+          console.error('注册错误:', error);
+          alert(error.message);
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      setLoadingState(loading) {
+        const submitBtn = document.getElementById('submitBtn');
+        if (loading) {
+          submitBtn.classList.add('btn-loading');
+          submitBtn.disabled = true;
+        } else {
+          submitBtn.classList.remove('btn-loading');
+          submitBtn.disabled = false;
+        }
+      }
+
+      showSuccessMessage() {
+        const successMessage = document.getElementById('successMessage');
+        successMessage.textContent = '注册成功！2秒后跳转到登录页面...';
+        successMessage.classList.remove('hidden');
+
+        // 注册成功后2秒跳转到登录页面
+        setTimeout(() => {
+          window.location.href = '/login.html';
+        }, 2000);
+      }
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      new RegisterManager();
+    });
+  </script>
+</body>
+
+</html>

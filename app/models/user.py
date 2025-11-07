@@ -7,6 +7,7 @@ from datetime import datetime
 import enum
 from app.config.database import Base
 
+
 # 教师角色枚举
 class TeacherRole(enum.Enum):
     NORMAL = "普通教师"
