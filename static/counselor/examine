@@ -67,6 +67,29 @@
       border-bottom: 1px solid rgba(226, 232, 240, 0.5);
     }
     .status-badge { display: inline-flex; align-items: center; gap: 4px; }
+    .nav-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-btn:hover {
+      background: #f8fafc;
+      transform: translateY(-1px);
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
   </style>
 </head>
 <body class="text-gray-800">
@@ -74,12 +97,27 @@
     <header class="glass fixed top-0 left-0 right-0 z-30">
       <div class="flex items-center justify-between px-6 h-16">
         <div class="flex items-center gap-3">
-          <i class="fa fa-building text-blue-500 text-xl"></i>
-          <h1 class="font-bold text-lg hidden sm:block text-blue-900">教室管理系统</h1>
+          <i class="fa fa-graduation-cap text-blue-500 text-xl"></i>
+          <h1 class="font-bold text-lg hidden sm:block text-blue-900">学生管理系统</h1>
         </div>
-        <button class="btn btn-outline">
-          <i class="fa fa-home"></i><span class="hidden sm:inline">返回</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <a href="counselorleave.html" class="nav-btn">
+            <i class="fa fa-calendar-check-o"></i>
+            <span class="hidden sm:inline">请假审核</span>
+          </a>
+          <a href="counselorwarn.html" class="nav-btn">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span class="hidden sm:inline">学业预警</span>
+          </a>
+          <a href="counselorclassroom.html" class="nav-btn active">
+            <i class="fa fa-building"></i>
+            <span class="hidden sm:inline">教室申请</span>
+          </a>
+          <a href="counselor.html" class="nav-btn">
+            <i class="fa fa-home"></i>
+            <span class="hidden sm:inline">返回首页</span>
+          </a>
+        </div>
       </div>
     </header>
 
@@ -88,7 +126,7 @@
       <div class="mb-8">
         <h2 class="text-3xl font-bold text-blue-900 mb-2">审批教室申请</h2>
         <div class="flex items-center gap-2 text-gray-500 text-sm">
-          <a href="#" class="hover:text-blue-500">辅导员主页</a>
+          <a href="counselor.html" class="hover:text-blue-500">辅导员主页</a>
           <i class="fa fa-angle-right"></i>
           <span>审批教室申请</span>
         </div>
@@ -243,7 +281,7 @@
             { application_id: 2, application_no: 'APP2024110002', student_id: '2023002', student_name: '李四', classroom_no: 'B205', classroom_name: '实验室', use_date: '2024-11-06', use_time: '14:00-16:00', create_time: '2024-11-01 15:45', approval_status: 'pending', classroom_type: 'lab' },
             { application_id: 3, application_no: 'APP2024110003', student_id: '2023003', student_name: '王五', classroom_no: 'C301', classroom_name: '会议室', use_date: '2024-11-07', use_time: '09:00-11:00', create_time: '2024-11-02 09:20', approval_status: 'approved', classroom_type: 'meeting' },
             { application_id: 4, application_no: 'APP2024110004', student_id: '2023004', student_name: '陈六', classroom_no: 'D401', classroom_name: '报告厅', use_date: '2024-11-08', use_time: '19:00-21:00', create_time: '2024-11-02 16:10', approval_status: 'rejected', classroom_type: 'theater' },
-            { application_id: 5, application_no: 'APP2024110005', student_id: '2023005', student_name: '刘七', classroom_no: 'A102', classroom_name: '多媒体教室', use_date: '2024-11-09', use_time: '10:00-12:00', create_time: '2024-11-03 11:            30', approval_status: 'pending', classroom_type: 'lecture' },
+            { application_id: 5, application_no: 'APP2024110005', student_id: '2023005', student_name: '刘七', classroom_no: 'A102', classroom_name: '多媒体教室', use_date: '2024-11-09', use_time: '10:00-12:00', create_time: '2024-11-03 11:30', approval_status: 'pending', classroom_type: 'lecture' },
             { application_id: 6, application_no: 'APP2024110006', student_id: '2023006', student_name: '赵老', classroom_no: 'A103', classroom_name: '多媒体教室', use_date: '2024-11-10', use_time: '08:00-10:00', create_time: '2024-11-03 14:00', approval_status: 'pending', classroom_type: 'lecture' },
             { application_id: 7, application_no: 'APP2024110007', student_id: '2023007', student_name: '钱教', classroom_no: 'B206', classroom_name: '实验室', use_date: '2024-11-11', use_time: '14:00-16:00', create_time: '2024-11-04 10:20', approval_status: 'approved', classroom_type: 'lab' }
           ],
@@ -296,7 +334,7 @@
         this.queryApplications();
       },
       methods: {
-        // 新增：手动查询方法（核心逻辑）
+        // 手动查询方法（核心逻辑）
         queryApplications() {
           // 重置到第一页
           this.page = 1;
