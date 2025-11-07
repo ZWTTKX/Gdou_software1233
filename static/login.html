@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户登录 - 校园管理系统</title>
+  <style>
+    :root {
+      --primary-color: #4a6ee0;
+      --primary-hover: #3a5ec0;
+      --secondary-color: #6c757d;
+      --success-color: #2ecc71;
+      --error-color: #e74c3c;
+      --border-radius: 8px;
+      --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      width: 100%;
+      max-width: 450px;
+      padding: 40px 35px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+      font-weight: 600;
+      font-size: 28px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+
+    .user-type-selector {
+      display: flex;
+      margin-bottom: 25px;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      background-color: #f8f9fa;
+    }
+
+    .user-type-selector label {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .user-type-selector input[type="radio"] {
+      display: none;
+    }
+
+    .user-type-selector input[type="radio"]:checked+span {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 500;
+    }
+
+    .user-type-selector span {
+      display: block;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .user-type-selector label:hover span {
+      background-color: #e9ecef;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      transition: all 0.3s;
+      background-color: #fff;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(74, 110, 224, 0.1);
+    }
+
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+    }
+
+    .btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s;
+      margin-bottom: 15px;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    .btn-loading {
+      position: relative;
+      color: transparent;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin-left: -10px;
+      margin-top: -10px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-right-color: transparent;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .error-message {
+      color: var(--error-color);
+      font-size: 13px;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .success-message {
+      color: var(--success-color);
+      font-size: 14px;
+      margin-top: 5px;
+      text-align: center;
+      padding: 10px;
+      background-color: #d4edda;
+      border-radius: var(--border-radius);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+        margin: 10px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .user-type-selector {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">校园管理系统</div>
+    <h1>用户登录</h1>
+
+    <div class="user-type-selector">
+      <label>
+        <input type="radio" name="userType" value="student" checked>
+        <span>学生</span>
+      </label>
+      <label>
+        <input type="radio" name="userType" value="teacher">
+        <span>教师</span>
+      </label>
+      <label>
+        <input type="radio" name="userType" value="counselor">
+        <span>辅导员</span>
+      </label>
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="id">账号</label>
+        <div class="input-with-icon">
+          <input type="text" id="id" name="id" required placeholder="请输入账号">
+          <span class="input-icon">👤</span>
+        </div>
+        <div id="idError" class="error-message hidden"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">密码</label>
+        <div class="input-with-icon">
+          <input type="password" id="password" name="password" required placeholder="请输入密码">
+          <button type="button" class="password-toggle" id="passwordToggle">👁️</button>
+        </div>
+        <div id="passwordError" class="error-message hidden"></div>
+      </div>
+
+      <button type="submit" class="btn" id="loginBtn">登录</button>
+      <a href="register.html">前往注册</a>
+    </form>
+  </div>
+
+  <script>
+    class LoginManager {
+      constructor() {
+        this.init();
+      }
+
+      init() {
+        this.bindEvents();
+        this.loadRememberedUser();
+      }
+
+      bindEvents() {
+        // 表单提交事件
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+          this.handleLogin(e);
+        });
+
+        // 密码显示/隐藏切换
+        document.getElementById('passwordToggle').addEventListener('click', () => {
+          this.togglePasswordVisibility();
+        });
+
+        // 实时表单验证
+        document.getElementById('id').addEventListener('input', () => {
+          this.validateId();
+        });
+
+        document.getElementById('password').addEventListener('input', () => {
+          this.validatePassword();
+        });
+
+        // 用户类型切换
+        document.querySelectorAll('input[name="userType"]').forEach(radio => {
+          radio.addEventListener('change', () => {
+            this.updateFormForUserType();
+          });
+        });
+      }
+
+      validateId() {
+        const idInput = document.getElementById('id');
+        const errorElement = document.getElementById('idError');
+        const value = idInput.value.trim();
+
+        if (!value) {
+          this.showError(errorElement, '账号不能为空');
+          return false;
+        }
+
+        if (value.length < 3) {
+          this.showError(errorElement, '账号长度至少3位');
+          return false;
+        }
+
+        this.hideError(errorElement);
+        return true;
+      }
+
+      validatePassword() {
+        const passwordInput = document.getElementById('password');
+        const errorElement = document.getElementById('passwordError');
+        const value = passwordInput.value;
+
+        if (!value) {
+          this.showError(errorElement, '密码不能为空');
+          return false;
+        }
+
+        if (value.length < 6) {
+          this.showError(errorElement, '密码长度至少6位');
+          return false;
+        }
+
+        this.hideError(errorElement);
+        return true;
+      }
+
+      showError(element, message) {
+        element.textContent = message;
+        element.classList.remove('hidden');
+      }
+
+      hideError(element) {
+        element.classList.add('hidden');
+      }
+
+      togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = document.getElementById('passwordToggle');
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          toggleButton.textContent = '🔒';
+        } else {
+          passwordInput.type = 'password';
+          toggleButton.textContent = '👁️';
+        }
+      }
+
+      updateFormForUserType() {
+        const userType = document.querySelector('input[name="userType"]:checked').value;
+        const idInput = document.getElementById('id');
+
+        switch (userType) {
+          case 'student':
+            idInput.placeholder = '请输入学号';
+            break;
+          case 'teacher':
+            idInput.placeholder = '请输入工号';
+            break;
+          case 'counselor':
+            idInput.placeholder = '请输入员工号';
+            break;
+        }
+      }
+
+      async handleLogin(e) {
+        e.preventDefault();
+
+        // 验证表单
+        if (!this.validateId() || !this.validatePassword()) {
+          return;
+        }
+
+        // 显示加载状态
+        this.setLoadingState(true);
+
+        try {
+          const formData = new FormData(document.getElementById('loginForm'));
+          const userType = document.querySelector('input[name="userType"]:checked').value;
+          const rememberMe = document.getElementById('rememberMe').checked;
+
+          const loginData = {
+            id: formData.get('id').trim(),
+            password: formData.get('password'),
+            userType: userType
+          };
+
+          // 发送登录请求
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loginData)
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // 显示成功消息
+            this.showSuccessMessage('登录成功！正在跳转...');
+
+            // 延迟跳转让用户看到成功消息
+            setTimeout(() => {
+              window.location.href = data.redirect_url || this.getDefaultRedirectUrl(userType);
+            }, 1000);
+
+          } else {
+            throw new Error(data.message || '登录失败，请检查账号密码');
+          }
+
+        } catch (error) {
+          console.error('登录错误:', error);
+          this.showError(document.getElementById('passwordError'), error.message);
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      setLoadingState(loading) {
+        const loginBtn = document.getElementById('loginBtn');
+        if (loading) {
+          loginBtn.classList.add('btn-loading');
+          loginBtn.disabled = true;
+        } else {
+          loginBtn.classList.remove('btn-loading');
+          loginBtn.disabled = false;
+        }
+      }
+
+      showSuccessMessage(message) {
+        const existingMessage = document.querySelector('.success-message');
+        if (existingMessage) {
+          existingMessage.remove();
+        }
+
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.textContent = message;
+
+        document.getElementById('loginForm').insertBefore(successDiv, document.querySelector('.btn'));
+      }
+
+      getDefaultRedirectUrl(userType) {
+        const routes = {
+          student: '/student/student',
+          teacher: '/teacher/teacher',
+          counselor: '/counselor/counselotr'
+        };
+        return routes[userType] || '/';
+      }
+
+      rememberUser(id, userType) {
+        const userInfo = {
+          id: id,
+          userType: userType,
+          timestamp: Date.now()
+        };
+        localStorage.setItem('rememberedUser', JSON.stringify(userInfo));
+      }
+
+      clearRememberedUser() {
+        localStorage.removeItem('rememberedUser');
+      }
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      new LoginManager();
+    });
+
+    // 添加键盘快捷键支持
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        const activeElement = document.activeElement;
+        if (activeElement.tagName === 'INPUT' && activeElement.type !== 'checkbox') {
+          document.getElementById('loginForm').requestSubmit();
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
