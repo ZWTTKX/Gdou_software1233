@@ -68,6 +68,29 @@
     }
     .status-badge { display: inline-flex; align-items: center; gap: 4px; }
     .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .nav-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-btn:hover {
+      background: #f8fafc;
+      transform: translateY(-1px);
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
   </style>
 </head>
 <body class="text-gray-800">
@@ -75,12 +98,27 @@
     <header class="glass fixed top-0 left-0 right-0 z-30">
       <div class="flex items-center justify-between px-6 h-16">
         <div class="flex items-center gap-3">
-          <i class="fa fa-calendar-check-o text-blue-500 text-xl"></i>
-          <h1 class="font-bold text-lg hidden sm:block text-blue-900">学生请假管理系统</h1>
+          <i class="fa fa-graduation-cap text-blue-500 text-xl"></i>
+          <h1 class="font-bold text-lg hidden sm:block text-blue-900">学生管理系统</h1>
         </div>
-        <button class="btn btn-outline">
-          <i class="fa fa-home"></i><span class="hidden sm:inline">返回</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <a href="counselorleave.html" class="nav-btn active">
+            <i class="fa fa-calendar-check-o"></i>
+            <span class="hidden sm:inline">请假审核</span>
+          </a>
+          <a href="counselorwarn.html" class="nav-btn">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span class="hidden sm:inline">学业预警</span>
+          </a>
+          <a href="counselorclassroom.html" class="nav-btn">
+            <i class="fa fa-building"></i>
+            <span class="hidden sm:inline">教室申请</span>
+          </a>
+          <a href="counselor.html" class="nav-btn">
+            <i class="fa fa-home"></i>
+            <span class="hidden sm:inline">返回首页</span>
+          </a>
+        </div>
       </div>
     </header>
 
@@ -89,7 +127,7 @@
       <div class="mb-8">
         <h2 class="text-3xl font-bold text-blue-900 mb-2">学生请假审核</h2>
         <div class="flex items-center gap-2 text-gray-500 text-sm">
-          <a href="#" class="hover:text-blue-500">辅导员主页</a>
+          <a href="counselor.html" class="hover:text-blue-500">辅导员主页</a>
           <i class="fa fa-angle-right"></i>
           <span>学生请假审核</span>
         </div>
@@ -238,7 +276,6 @@
     createApp({
       data() {
         return {
-          // 原始申请数据
           rawList: [
             { application_id: 1, application_no: 'LV2024110001', student_id: '2023001', student_name: '张三', class_name: '计算机科学与技术1班', leave_type: 'sick', leave_start_date: '2024-11-05', leave_end_date: '2024-11-07', reason: '感冒发烧，需要休息', create_time: '2024-11-01 14:30', approval_status: 'pending' },
             { application_id: 2, application_no: 'LV2024110002', student_id: '2023002', student_name: '李四', class_name: '软件工程2班', leave_type: 'personal', leave_start_date: '2024-11-06', leave_end_date: '2024-11-06', reason: '参加亲戚婚礼', create_time: '2024-11-01 15:45', approval_status: 'pending' },
