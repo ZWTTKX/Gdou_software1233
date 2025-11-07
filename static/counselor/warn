@@ -56,6 +56,29 @@
     }
     .page-active { background: var(--primary); color: white; border-color: var(--primary); }
     .hidden { display: none; }
+    .nav-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      background: white;
+      border: 1px solid var(--border);
+      color: #1e293b;
+      text-decoration: none;
+    }
+    .nav-btn:hover {
+      background: #f8fafc;
+      transform: translateY(-1px);
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
   </style>
 </head>
 <body class="text-gray-800">
@@ -63,12 +86,27 @@
   <header class="glass fixed top-0 left-0 right-0 z-30">
     <div class="flex items-center justify-between px-6 h-16">
       <div class="flex items-center gap-3">
-        <i class="fa fa-exclamation-triangle text-blue-500 text-xl"></i>
+        <i class="fa fa-graduation-cap text-blue-500 text-xl"></i>
         <h1 class="font-bold text-lg hidden sm:block text-blue-900">学生管理系统</h1>
       </div>
-      <button class="btn btn-outline">
-        <i class="fa fa-home"></i><span class="hidden sm:inline">返回</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <a href="counselorleave.html" class="nav-btn">
+          <i class="fa fa-calendar-check-o"></i>
+          <span class="hidden sm:inline">请假审核</span>
+        </a>
+        <a href="counselorwarn.html" class="nav-btn active">
+          <i class="fa fa-exclamation-triangle"></i>
+          <span class="hidden sm:inline">学业预警</span>
+        </a>
+        <a href="counselorclassroom.html" class="nav-btn">
+          <i class="fa fa-building"></i>
+          <span class="hidden sm:inline">教室申请</span>
+        </a>
+        <a href="counselor.html" class="nav-btn">
+          <i class="fa fa-home"></i>
+          <span class="hidden sm:inline">返回首页</span>
+        </a>
+      </div>
     </div>
   </header>
 
@@ -77,19 +115,19 @@
     <div class="mb-8">
       <h2 class="text-3xl font-bold text-blue-900 mb-2">学业预警管理</h2>
       <div class="flex items-center gap-2 text-gray-500 text-sm">
-        <a href="#" class="hover:text-blue-500">辅导员主页</a>
+        <a href="counselor.html" class="hover:text-blue-500">辅导员主页</a>
         <i class="fa fa-angle-right"></i>
         <span>差生学业预警</span>
       </div>
     </div>
 
-    <!-- 筛选卡片：修改下拉框默认值为“全部” -->
+    <!-- 筛选卡片：修改下拉框默认值为"全部" -->
     <div class="card p-6 mb-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label class="block text-gray-600 font-medium mb-2 text-sm">选择班级</label>
           <select id="selectedClass" class="input-base">
-            <option value="all">全部班级</option> <!-- 默认选中“全部班级” -->
+            <option value="all">全部班级</option> <!-- 默认选中"全部班级" -->
             <option value="cs202301">计算机2301班</option>
             <option value="cs202302">计算机2302班</option>
             <option value="cs202303">计算机2303班</option>
@@ -208,7 +246,7 @@
       loadStudentData(); // 页面打开就加载全部数据
     };
 
-    // 1. 加载数据（支持“全部”筛选，默认加载所有）
+    // 1. 加载数据（支持"全部"筛选，默认加载所有）
     function loadStudentData() {
       const selectedClass = document.getElementById('selectedClass').value;
       const warningType = document.getElementById('warningType').value;
@@ -225,7 +263,7 @@
         { warning_id: 8, student_id: '2023082', student_name: '郑十', class_id: 'cs202304', warning_reason: 'absent', fail_courses: '高等数学、大学物理', absent_count: 4, makeup_courses: '大学英语', warning_status: '未发送', status_icon: 'fa-clock-o', status_class: 'bg-gray-100 text-gray-700', counselor_remark: '' }
       ];
 
-      // 筛选逻辑：选“全部”则不筛选，否则按条件过滤
+      // 筛选逻辑：选"全部"则不筛选，否则按条件过滤
       allStudents = fullStudentData.filter(student => {
         const classMatch = selectedClass === 'all' ? true : student.class_id === selectedClass;
         const typeMatch = warningType === 'all' ? true : student.warning_reason === warningType;
@@ -237,7 +275,7 @@
       totalPages = Math.ceil(totalCount / pageSize);
       currentPage = 1;
 
-            document.getElementById('totalCount').textContent = totalCount;
+      document.getElementById('totalCount').textContent = totalCount;
       document.getElementById('pageInfo').textContent = `显示 1 至 ${Math.min(pageSize, totalCount)} 条，共 ${totalCount} 条`;
       renderTable();
       renderPageBtn();
