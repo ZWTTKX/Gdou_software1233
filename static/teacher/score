@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>录入学生成绩</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 导出Excel依赖（必须引入） -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg: #fefefe; 
+      --card: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+    }
+    body { 
+      background-color: var(--bg); 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    .card { background: var(--card); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .input-base { 
+      width: 100%; 
+      padding: 8px 12px; 
+      border: 1px solid var(--border); 
+      border-radius: 8px; 
+      transition: all 0.3s;
+      background-color: var(--card); 
+    }
+    .input-base:focus { 
+      outline: none; 
+      border-color: var(--primary); 
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .btn { 
+      padding: 8px 16px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+    .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f8fafc; }
+    .badge { padding: 4px 8px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .table-row:hover { background: #f8fafc; }
+    .glass { 
+      backdrop-filter: blur(10px); 
+      background: rgba(255, 255, 255, 0.9); 
+      border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    }
+    .page-active { background: var(--primary); color: white; border-color: var(--primary); }
+    .nav-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-btn:hover {
+      background: #f8fafc;
+      transform: translateY(-1px);
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+  <header class="glass fixed top-0 left-0 right-0 z-30">
+    <div class="flex items-center justify-between px-6 h-16">
+      <div class="flex items-center gap-3">
+        <i class="fa fa-graduation-cap text-blue-500 text-xl"></i>
+        <h1 class="font-bold text-lg hidden sm:block text-blue-900">学生管理系统</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="teacherscore.html" class="nav-btn active">
+          <i class="fa fa-bar-chart"></i>
+          <span class="hidden sm:inline">录入成绩</span>
+        </a>
+        <a href="teachertest.html" class="nav-btn">
+          <i class="fa fa-file-text-o"></i>
+          <span class="hidden sm:inline">创建考试</span>
+        </a>
+        <a href="teacheraffair.html" class="nav-btn">
+          <i class="fa fa-bullhorn"></i>
+          <span class="hidden sm:inline">发布公告</span>
+        </a>
+        <a href="teacher.html" class="nav-btn">
+          <i class="fa fa-home"></i>
+          <span class="hidden sm:inline">返回首页</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-20 p-6 max-w-6xl mx-auto" id="app">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-blue-900 mb-2">录入学生成绩</h2>
+      <div class="flex items-center gap-2 text-gray-500 text-sm">
+        <a href="teacher.html" class="hover:text-blue-500">教师主页</a>
+        <i class="fa fa-angle-right"></i>
+        <span>录入学生成绩</span>
+      </div>
+    </div>
+
+    <div class="card p-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-gray-600 font-medium mb-2 text-sm">选择科目 <span class="text-red-500">*</span></label>
+          <select class="input-base" v-model="selectedSubject">
+            <option value="">请选择考试科目</option>
+            <option value="math101">高等数学 (MATH101)</option>
+            <option value="cs202">数据结构 (CS202)</option>
+            <option value="english201">大学英语 (ENGLISH201)</option>
+            <option value="physics101">大学物理 (PHYSICS101)</option>
+            <option value="python301">Python编程 (PYTHON301)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-600 font-medium mb-2 text-sm">选择班级 <span class="text-red-500">*</span></label>
+          <select class="input-base" v-model="selectedClass">
+            <option value="">请选择班级</option>
+            <option value="all">全部班级</option>
+            <option value="cs202301">计算机2301班</option>
+            <option value="cs202302">计算机2302班</option>
+            <option value="cs202303">计算机2303班</option>
+            <option value="cs202304">计算机2304班</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button class="btn btn-primary w-full justify-center" @click="queryStudents">
+            <i class="fa fa-search"></i>查询学生
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card overflow-hidden">
+      <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h3 class="font-bold text-lg">学生成绩列表 <span class="text-gray-400 font-normal text-sm">(共{{ totalCount }}名学生)</span></h3>
+        <div class="flex gap-3">
+          <!-- 导出按钮：绑定点击事件 -->
+          <button class="btn btn-outline" @click="exportScores">
+            <i class="fa fa-download"></i><span class="hidden sm:inline">导出成绩</span>
+          </button>
+          <button class="btn btn-primary" @click="saveScores">
+            <i class="fa fa-save"></i><span class="hidden sm:inline">保存成绩</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">序号</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">学号</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">姓名</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">班级ID</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">当前科目</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">成绩 <span class="text-gray-400">(0-100分)</span></th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">等级</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr class="table-row" v-for="(student, idx) in currentPageStudents" :key="student.student_id">
+              <td class="px-4 py-3 text-sm">{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+              <td class="px-4 py-3 text-sm">{{ student.student_id }}</td>
+              <td class="px-4 py-3 text-sm font-medium">{{ student.student_name }}</td>
+              <td class="px-4 py-3 text-sm">{{ student.class_id }}</td>
+              <td class="px-4 py-3 text-sm">{{ student.currentSubjectText }}</td>
+              <td class="px-4 py-3">
+                <input type="number" class="input-base w-20 text-center" min="0" max="100" 
+                       v-model.number="student.score" @input="updateGrade(student)">
+              </td>
+              <td class="px-4 py-3">
+                <span :class="student.gradeClass">{{ student.gradeText }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-4 flex items-center justify-between text-sm text-gray-500">
+        <span>显示 {{ (currentPage - 1) * pageSize + 1 }} 至 {{ Math.min(currentPage * pageSize, totalCount) }} 条，共 {{ totalCount }} 条</span>
+        <div class="flex gap-1">
+          <button class="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50" @click="changePage('prev')" :disabled="currentPage === 1">
+            <i class="fa fa-angle-left"></i>
+          </button>
+          <button 
+            class="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50"
+            v-for="page in totalPages"
+            :key="page"
+            @click="changePage(page)"
+            :class="{ 'page-active': page === currentPage }"
+          >{{ page }}</button>
+          <button class="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50" @click="changePage('next')" :disabled="currentPage === totalPages">
+            <i class="fa fa-angle-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          selectedSubject: 'all',
+          selectedClass: 'all',
+          allStudents: [],
+          currentPage: 1,
+          pageSize: 5,
+          totalCount: 0,
+          totalPages: 0,
+          // 科目文本映射表
+          subjectMap: {
+            'all': '全部科目',
+            'math101': '高等数学 (MATH101)',
+            'cs202': '数据结构 (CS202)',
+            'english201': '大学英语 (ENGLISH201)',
+            'physics101': '大学物理 (PHYSICS101)',
+            'python301': 'Python编程 (PYTHON301)'
+          }
+        };
+      },
+      computed: {
+        currentPageStudents() {
+          const startIndex = (this.currentPage - 1) * this.pageSize;
+          const endIndex = startIndex + this.pageSize;
+          return this.allStudents.slice(startIndex, endIndex);
+        }
+      },
+      methods: {
+        queryStudents() {
+          if (!this.selectedSubject || !this.selectedClass) {
+            alert('请选择科目和班级（可选择"全部"）');
+            return;
+          }
+
+          const allClasses = ['cs202301', 'cs202302', 'cs202303', 'cs202304'];
+          const studentNames = ['张三', '李四', '王五', '赵六', '孙七', '周八', '吴九', '郑十', '钱一', '冯二'];
+          const baseStudentCount = 7; // 每个班级固定7名学生
+          this.allStudents = [];
+
+          // 按班级筛选逻辑
+          allClasses.forEach(classId => {
+            // 若选择具体班级，只处理该班级；选择全部则处理所有班级
+            if (this.selectedClass !== 'all' && classId !== this.selectedClass) return;
+
+            // 为当前班级生成对应学生
+            Array.from({length: baseStudentCount}, (_, index) => {
+              const studentIdx = (allClasses.indexOf(classId) * baseStudentCount) + index;
+              this.allStudents.push({
+                student_id: `2023${String(studentIdx + 1).padStart(3, '0')}`,
+                student_name: studentNames[studentIdx % 10],
+                class_id: classId,
+                currentSubjectText: this.subjectMap[this.selectedSubject], // 显示当前选择的科目
+                score: '',
+                gradeText: '未录入',
+                gradeClass: 'badge bg-gray-100 text-gray-500'
+              });
+            });
+          });
+
+          // 更新分页信息
+          this.totalCount = this.allStudents.length;
+          this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+          this.currentPage = 1;
+        },
+        updateGrade(student) {
+          const score = Math.max(0, Math.min(100, student.score || 0));
+          student.score = score;
+          if (score >= 60) {
+            student.gradeText = '及格';
+            student.gradeClass = 'badge bg-green-100 text-green-700';
+          } else if (score > 0) {
+            student.gradeText = '不及格';
+            student.gradeClass = 'badge bg-red-100 text-red-700';
+          } else {
+            student.gradeText = '未录入';
+            student.gradeClass = 'badge bg-gray-100 text-gray-500';
+          }
+        },
+        changePage(target) {
+          let newPage = this.currentPage;
+          if (target === 'prev') newPage--;
+          if (target === 'next') newPage++;
+          if (typeof target === 'number') newPage = target;
+
+          if (newPage < 1 || newPage > this.totalPages) return;
+          this.currentPage = newPage;
+        },
+        saveScores() {
+          if (!this.selectedSubject || !this.selectedClass) {
+            alert('请选择科目和班级');
+            return;
+          }
+
+          const filled = this.allStudents.filter(s => s.score !== '').length;
+          if (!filled && !confirm('尚未录入任何成绩，是否确认保存？')) return;
+          if (filled && !confirm(`共录入 ${filled} 名学生成绩，是否确认保存？`)) return;
+
+          // 提交数据时，科目与筛选条件一致
+          const submitData = this.allStudents.map(student => ({
+            student_id: student.student_id,
+            class_id: student.class_id,
+            subject: this.selectedSubject,
+            subject_text: this.subjectMap[this.selectedSubject],
+            score: student.score
+          }));
+          console.log('提交至后端的数据：', submitData);
+          alert('成绩保存成功！');
+        },
+        exportScores() {
+          if (this.allStudents.length === 0) {
+            alert('暂无学生数据，无法导出');
+            return;
+          }
+
+          // 整理导出数据（包含科目信息）
+          const exportData = this.allStudents.map((student, idx) => ({
+            序号: (this.currentPage - 1) * this.pageSize + idx + 1,
+            学号: student.student_id,
+            姓名: student.student_name,
+            班级ID: student.class_id,
+            考试科目: student.currentSubjectText,
+            成绩: student.score || '未录入',
+            等级: student.gradeText
+          }));
+
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.json_to_sheet(exportData);
+          XLSX.utils.book_append_sheet(workbook, worksheet, '成绩表');
+          
+          const fileName = `学生成绩表_${this.subjectMap[this.selectedSubject]}_${this.selectedClass === 'all' ? '全部班级' : this.selectedClass}_${new Date().toLocaleDateString()}.xlsx`;
+          XLSX.writeFile(workbook, fileName);
+
+          alert('成绩导出成功！');
+        }
+      },
+      mounted() {
+        this.queryStudents();
+      }
+    });
+  </script>
+</body>
+</html>
