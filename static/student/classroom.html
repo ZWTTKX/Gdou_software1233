@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学工管理系统</title>
+    <!-- 引入Layui CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.6.8/dist/css/layui.min.css">
+    <style>
+        :root {
+            --primary-color: #0f5bbf;
+            --primary-light: #9370db;
+            --primary-dark: #483d8b;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #f5222d;
+            --text-color: #333;
+            --text-light: #666;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 左侧导航栏样式 */
+        .sidebar {
+            width: 200px;
+            background-color: #fff;
+            box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .sidebar-header {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .sidebar-menu {
+            padding: 10px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(90, 136, 205, 0.1);
+        }
+        
+        .menu-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .menu-item i {
+            margin-right: 8px;
+        }
+        
+        /* 右侧内容区样式 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .page-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .page-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .card {
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        
+        .card-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header i {
+            margin-right: 5px;
+        }
+        
+        /* 查询筛选区样式 */
+        .filter-form .layui-form-item {
+            margin-bottom: 15px;
+        }
+        
+        .filter-form .layui-form-label {
+            width: 100px;
+        }
+        
+        .filter-form .layui-input-block {
+            margin-left: 130px;
+        }
+        
+        .query-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .query-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* 可用教室列表区样式 */
+        .classroom-table {
+            width: 100%;
+        }
+        
+        .classroom-table th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        
+        .status-available {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .select-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .select-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .back-btn {
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+        }
+        
+        .back-btn:hover {
+            background-color: #e6a23c;
+        }
+        
+        /* 申请信息填写区样式 */
+        .apply-form .layui-form-item {
+            margin-bottom: 15px;
+        }
+        
+        .apply-form .layui-form-label {
+            width: 100px;
+        }
+        
+        .apply-form .layui-input-block {
+            margin-left: 130px;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .cancel-btn {
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #e6a23c;
+        }
+        
+        /* 借用记录页面样式 */
+        .record-filter {
+            margin-bottom: 15px;
+        }
+        
+        /* 优化后的借用记录表格样式 */
+        .record-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+        
+        .record-table th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+            text-align: center;
+            padding: 12px 8px;
+        }
+        
+        .record-table td {
+            text-align: center;
+            padding: 12px 8px;
+            word-wrap: break-word;
+            overflow: hidden;
+        }
+        
+        /* 为不同列设置固定宽度，确保对齐 */
+        .record-table th:nth-child(1),
+        .record-table td:nth-child(1) {
+            width: 120px;
+        }
+        
+        .record-table th:nth-child(2),
+        .record-table td:nth-child(2) {
+            width: 100px;
+        }
+        
+        .record-table th:nth-child(3),
+        .record-table td:nth-child(3) {
+            width: 120px;
+        }
+        
+        .record-table th:nth-child(4),
+        .record-table td:nth-child(4) {
+            width: 120px;
+        }
+        
+        .record-table th:nth-child(5),
+        .record-table td:nth-child(5) {
+            width: 100px;
+        }
+        
+        .record-table th:nth-child(6),
+        .record-table td:nth-child(6) {
+            width: 160px;
+        }
+        
+        .record-table th:nth-child(7),
+        .record-table td:nth-child(7) {
+            width: 100px;
+        }
+        
+        .record-table th:nth-child(8),
+        .record-table td:nth-child(8) {
+            width: 80px;
+        }
+        
+        /* 状态标签样式 */
+        .status-pending {
+            color: var(--warning-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 60px;
+            text-align: center;
+        }
+        
+        .status-approved {
+            color: var(--success-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 60px;
+            text-align: center;
+        }
+        
+        .status-rejected {
+            color: var(--error-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 60px;
+            text-align: center;
+        }
+        
+        .detail-btn {
+            background-color: var(--primary-light);
+            color: white;
+            border: none;
+            width: 60px;
+        }
+        
+        .detail-btn:hover {
+            background-color: var(--primary-color);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .sidebar-menu {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .menu-item {
+                flex: 1;
+                min-width: 120px;
+                justify-content: center;
+            }
+            
+            .filter-form .layui-form-label,
+            .apply-form .layui-form-label {
+                width: auto;
+                text-align: left;
+            }
+            
+            .filter-form .layui-input-block,
+            .apply-form .layui-input-block {
+                margin-left: 0;
+            }
+            
+            .record-table {
+                table-layout: auto;
+            }
+            
+            .record-table th,
+            .record-table td {
+                width: auto !important;
+                padding: 8px 4px;
+                font-size: 14px;
+            }
+        }
+        
+        /* 用户信息样式 */
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- 用户信息 -->
+    <div class="user-info">
+        <div class="user-avatar">张</div>
+        <span>张三 (20230001)</span>
+    </div>
+
+    <div class="container">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                学工管理系统
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-page="classroom-borrow">
+                    <i class="layui-icon layui-icon-home"></i> 教室借用
+                </div>
+                <div class="menu-item" data-page="borrow-record">
+                    <i class="layui-icon layui-icon-list"></i> 借用记录
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右侧内容区 -->
+        <div class="main-content">
+            <!-- 教室借用页面 -->
+            <div id="classroom-borrow-page" class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">教室借用</h1>
+                </div>
+                
+                <!-- 查询筛选区 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="layui-icon layui-icon-search"></i> 查询筛选
+                    </div>
+                    <form class="layui-form filter-form">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">借用日期</label>
+                            <div class="layui-input-block">
+                                <input type="text" class="layui-input" id="borrow-date" placeholder="请选择日期">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">开始时间</label>
+                            <div class="layui-input-block">
+                                <select id="start-time">
+                                    <option value="">请选择开始时间</option>
+                                    <option value="08:00">08:00</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="18:00">18:00</option>
+                                    <option value="19:00">19:00</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">结束时间</label>
+                            <div class="layui-input-block">
+                                <select id="end-time">
+                                    <option value="">请选择结束时间</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="17:00">17:00</option>
+                                    <option value="19:00">19:00</option>
+                                    <option value="20:00">20:00</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button type="button" class="layui-btn query-btn" id="query-btn">
+                                    <i class="layui-icon layui-icon-search"></i> 查询可用教室
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 可用教室列表区 -->
+                <div class="card" id="classroom-list-card">
+                    <div class="card-header">
+                        <i class="layui-icon layui-icon-list"></i> 可用教室列表
+                    </div>
+                    <div class="info-text" id="query-info">
+                        <!-- 查询条件信息将在这里显示 -->
+                    </div>
+                    <table class="layui-table classroom-table" id="classroom-table">
+                        <thead>
+                            <tr>
+                                <th>教室编号</th>
+                                <th>容量</th>
+                                <th>教室设施</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 教室数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button type="button" class="layui-btn back-btn" id="back-btn">
+                            <i class="layui-icon layui-icon-return"></i> 返回修改时间
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 申请信息填写区 -->
+                <div class="card" id="apply-form-card" style="display: none;">
+                    <div class="card-header">
+                        <i class="layui-icon layui-icon-edit"></i> 申请信息填写
+                    </div>
+                    <div class="info-text" id="selected-info">
+                        <!-- 已选教室信息将在这里显示 -->
+                    </div>
+                    <form class="layui-form apply-form">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">借用事由</label>
+                            <div class="layui-input-block">
+                                <textarea class="layui-textarea" id="reason" placeholder="请输入详细的借用原因（如班会、社团活动、学术研讨等）"></textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">参与人数</label>
+                            <div class="layui-input-block">
+                                <input type="text" class="layui-input" id="participants" placeholder="请输入参与人数">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button type="button" class="layui-btn submit-btn" id="submit-btn">
+                                    <i class="layui-icon layui-icon-ok"></i> 提交申请
+                                </button>
+                                <button type="button" class="layui-btn cancel-btn" id="cancel-btn">
+                                    <i class="layui-icon layui-icon-close"></i> 取消
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 借用记录页面 -->
+            <div id="borrow-record-page" class="page-content" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">借用记录</h1>
+                </div>
+                
+                <!-- 记录筛选区 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="layui-icon layui-icon-search"></i> 筛选条件
+                    </div>
+                    <form class="layui-form record-filter">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">申请日期</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" class="layui-input" id="apply-date-start" placeholder="开始日期">
+                                </div>
+                                <div class="layui-form-mid">-</div>
+                                <div class="layui-input-inline">
+                                    <input type="text" class="layui-input" id="apply-date-end" placeholder="结束日期">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">审批状态</label>
+                                <div class="layui-input-inline">
+                                    <select id="approval-status">
+                                        <option value="">全部状态</option>
+                                        <option value="pending">待审批</option>
+                                        <option value="approved">已通过</option>
+                                        <option value="rejected">未通过</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <button type="button" class="layui-btn query-btn" id="record-query-btn">
+                                    <i class="layui-icon layui-icon-search"></i> 查询
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 借用记录列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="layui-icon layui-icon-list"></i> 借用记录列表
+                    </div>
+                    <table class="layui-table record-table" id="record-table">
+                        <thead>
+                            <tr>
+                                <th>申请编号</th>
+                                <th>教室编号</th>
+                                <th>借用日期</th>
+                                <th>借用时间</th>
+                                <th>参与人数</th>
+                                <th>申请时间</th>
+                                <th>审批状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 记录数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                    <div id="record-pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入Layui JS -->
+    <script src="https://cdn.jsdelivr.net/npm/layui@2.6.8/dist/layui.min.js"></script>
+    <script>
+        // API配置 - 根据实际部署修改
+        const API_CONFIG = {
+            BASE_URL: 'http://localhost:3000/api', // 后端API基础地址
+            ENDPOINTS: {
+                AVAILABLE_CLASSROOMS: '/classrooms/available',
+                BORROW_APPLY: '/borrow/apply',
+                BORROW_RECORDS: '/borrow/records'
+            }
+        };
+
+        // 当前用户信息（实际应从登录系统获取）
+        const CURRENT_USER = {
+            name: '张三',
+            id: '20230001',
+            role: 'student'
+        };
+
+        layui.use(['form', 'laydate', 'table', 'layer'], function(){
+            var form = layui.form;
+            var laydate = layui.laydate;
+            var table = layui.table;
+            var layer = layui.layer;
+            var $ = layui.$;
+            
+            // 当前选中的教室信息
+            let selectedClassroom = null;
+            
+            // 页面切换功能
+            $('.menu-item').on('click', function(){
+                var pageId = $(this).data('page') + '-page';
+                
+                // 更新菜单激活状态
+                $('.menu-item').removeClass('active');
+                $(this).addClass('active');
+                
+                // 切换页面显示
+                $('.page-content').hide();
+                $('#' + pageId).show();
+                
+                // 如果是借用记录页面，自动加载数据
+                if (pageId === 'borrow-record-page') {
+                    loadBorrowRecords();
+                }
+            });
+            
+            // 初始化日期选择器
+            laydate.render({
+                elem: '#borrow-date',
+                value: new Date(),
+                min: 0 // 只能选择今天及以后的日期
+            });
+            
+            laydate.render({
+                elem: '#apply-date-start'
+            });
+            
+            laydate.render({
+                elem: '#apply-date-end'
+            });
+            
+            // 查询按钮点击事件 - 连接后端API
+            $('#query-btn').on('click', function(){
+                var date = $('#borrow-date').val();
+                var startTime = $('#start-time').val();
+                var endTime = $('#end-time').val();
+                
+                if(!date || !startTime || !endTime) {
+                    layer.msg('请完整填写查询条件');
+                    return;
+                }
+                
+                // 显示加载中
+                var loadIndex = layer.load(1);
+                
+                // 调用后端API查询可用教室
+                $.ajax({
+                    url: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.AVAILABLE_CLASSROOMS,
+                    method: 'GET',
+                    data: {
+                        date: date,
+                        start_time: startTime,
+                        end_time: endTime
+                    },
+                    success: function(response) {
+                        layer.close(loadIndex);
+                        if (response.success) {
+                            $('#query-info').html('<p>查询条件：' + date + ' ' + startTime + ' - ' + endTime + '</p>');
+                            renderClassroomTable(response.data);
+                            $('#apply-form-card').hide();
+                        } else {
+                            layer.msg(response.message || '查询失败');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        layer.close(loadIndex);
+                        console.error('API调用失败:', error);
+                        // 如果后端不可用，使用模拟数据
+                        layer.msg('后端服务暂不可用，使用演示数据');
+                        renderClassroomTable(getMockClassroomData());
+                    }
+                });
+            });
+            
+            // 渲染教室列表表格
+            function renderClassroomTable(data) {
+                var tbody = $('#classroom-table tbody');
+                tbody.empty();
+                
+                if(data.length === 0) {
+                    tbody.append('<tr><td colspan="5" style="text-align: center;">暂无可用教室，请调整时间后重试</td></tr>');
+                    return;
+                }
+                
+                $.each(data, function(index, item){
+                    var statusHtml = '<span class="status-available">可用</span>';
+                    var btnHtml = `<button type="button" class="layui-btn layui-btn-xs select-btn" 
+                        data-id="${item.id}" 
+                        data-number="${item.classroom_number}"
+                        data-capacity="${item.capacity}">选择</button>`;
+                    
+                    var tr = $('<tr></tr>');
+                    tr.append('<td>' + item.classroom_number + '</td>');
+                    tr.append('<td>' + item.capacity + '人</td>');
+                    tr.append('<td>' + (item.facilities || '无') + '</td>');
+                    tr.append('<td>' + statusHtml + '</td>');
+                    tr.append('<td>' + btnHtml + '</td>');
+                    
+                    tbody.append(tr);
+                });
+                
+                // 绑定选择按钮事件
+                $('.select-btn').on('click', function(){
+                    selectedClassroom = {
+                        id: $(this).data('id'),
+                        number: $(this).data('number'),
+                        capacity: $(this).data('capacity')
+                    };
+                    
+                    var date = $('#borrow-date').val();
+                    var startTime = $('#start-time').val();
+                    var endTime = $('#end-time').val();
+                    
+                    $('#selected-info').html(
+                        '<p>已选教室：' + selectedClassroom.number + '（容量：' + selectedClassroom.capacity + '人）</p>' +
+                        '<p>借用时间：' + date + ' ' + startTime + ' - ' + endTime + '</p>'
+                    );
+                    
+                    $('#apply-form-card').show();
+                    
+                    $('html, body').animate({
+                        scrollTop: $('#apply-form-card').offset().top - 20
+                    }, 500);
+                });
+            }
+            
+            // 返回修改时间按钮点击事件
+            $('#back-btn').on('click', function(){
+                $('#apply-form-card').hide();
+                selectedClassroom = null;
+            });
+            
+            // 取消按钮点击事件
+            $('#cancel-btn').on('click', function(){
+                $('#apply-form-card').hide();
+                $('#reason').val('');
+                $('#participants').val('');
+                selectedClassroom = null;
+            });
+            
+            // 提交按钮点击事件 - 连接后端API
+            $('#submit-btn').on('click', function(){
+                var reason = $('#reason').val();
+                var participants = $('#participants').val();
+                
+                // 表单验证
+                if(!reason) {
+                    layer.msg('请输入借用事由');
+                    return;
+                }
+                
+                if(!participants) {
+                    layer.msg('请输入参与人数');
+                    return;
+                }
+                
+                if(!/^\d+$/.test(participants)) {
+                    layer.msg('参与人数必须为数字');
+                    return;
+                }
+                
+                if(parseInt(participants) > selectedClassroom.capacity) {
+                    layer.msg('参与人数不能超过教室容量（' + selectedClassroom.capacity + '人）');
+                    return;
+                }
+                
+                if(!selectedClassroom) {
+                    layer.msg('请先选择教室');
+                    return;
+                }
+                
+                var date = $('#borrow-date').val();
+                var startTime = $('#start-time').val();
+                var endTime = $('#end-time').val();
+                
+                // 提交到后端
+                var submitIndex = layer.load(1);
+                
+                $.ajax({
+                    url: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.BORROW_APPLY,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        classroom_id: selectedClassroom.id,
+                        borrow_date: date,
+                        start_time: startTime,
+                        end_time: endTime,
+                        participants: parseInt(participants),
+                        reason: reason,
+                        applicant_name: CURRENT_USER.name,
+                        applicant_id: CURRENT_USER.id
+                    }),
+                    success: function(response) {
+                        layer.close(submitIndex);
+                        if (response.success) {
+                            layer.msg('教室申请提交成功，可前往"借用记录"页面查看审批进度', {icon: 1, time: 3000});
+                            $('#apply-form-card').hide();
+                            $('#reason').val('');
+                            $('#participants').val('');
+                            selectedClassroom = null;
+                        } else {
+                            layer.msg(response.message || '提交失败');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        layer.close(submitIndex);
+                        console.error('API调用失败:', error);
+                        // 模拟提交成功
+                        layer.msg('教室申请提交成功（演示模式）', {icon: 1, time: 3000});
+                        $('#apply-form-card').hide();
+                        $('#reason').val('');
+                        $('#participants').val('');
+                        selectedClassroom = null;
+                    }
+                });
+            });
+            
+            // 借用记录查询按钮点击事件
+            $('#record-query-btn').on('click', function(){
+                loadBorrowRecords();
+            });
+            
+            // 加载借用记录
+            function loadBorrowRecords() {
+                var startDate = $('#apply-date-start').val();
+                var endDate = $('#apply-date-end').val();
+                var status = $('#approval-status').val();
+                
+                var loadIndex = layer.load(1);
+                
+                $.ajax({
+                    url: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.BORROW_RECORDS,
+                    method: 'GET',
+                    data: {
+                        applicant_id: CURRENT_USER.id,
+                        start_date: startDate,
+                        end_date: endDate,
+                        status: status
+                    },
+                    success: function(response) {
+                        layer.close(loadIndex);
+                        if (response.success) {
+                            renderBorrowRecords(response.data);
+                        } else {
+                            layer.msg(response.message || '查询失败');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        layer.close(loadIndex);
+                        console.error('API调用失败:', error);
+                        // 如果后端不可用，使用模拟数据
+                        layer.msg('后端服务暂不可用，使用演示数据');
+                        renderBorrowRecords(getMockBorrowRecords());
+                    }
+                });
+            }
+            
+            // 渲染借用记录表格
+            function renderBorrowRecords(data) {
+                var tbody = $('#record-table tbody');
+                tbody.empty();
+                
+                if(data.length === 0) {
+                    tbody.append('<tr><td colspan="8" style="text-align: center;">暂无借用记录</td></tr>');
+                    return;
+                }
+                
+                $.each(data, function(index, item){
+                    var statusHtml = '';
+                    if(item.status === 'pending') {
+                        statusHtml = '<span class="status-pending">待审批</span>';
+                    } else if(item.status === 'approved') {
+                        statusHtml = '<span class="status-approved">已通过</span>';
+                    } else if(item.status === 'rejected') {
+                        statusHtml = '<span class="status-rejected">未通过</span>';
+                    }
+                    
+                    var btnHtml = '<button type="button" class="layui-btn layui-btn-xs detail-btn" data-id="' + item.record_id + '">详情</button>';
+                    
+                    var tr = $('<tr></tr>');
+                    tr.append('<td>' + item.record_id + '</td>');
+                    tr.append('<td>' + item.classroom_number + '</td>');
+                    tr.append('<td>' + item.borrow_date + '</td>');
+                    tr.append('<td>' + item.start_time + '-' + item.end_time + '</td>');
+                    tr.append('<td>' + item.participants + '人</td>');
+                    tr.append('<td>' + item.apply_time + '</td>');
+                    tr.append('<td>' + statusHtml + '</td>');
+                    tr.append('<td>' + btnHtml + '</td>');
+                    
+                    tbody.append(tr);
+                });
+                
+                // 绑定详情按钮事件
+                $('.detail-btn').on('click', function(){
+                    var recordId = $(this).data('id');
+                    var record = data.find(function(item){
+                        return item.record_id === recordId;
+                    });
+                    
+                    if(record) {
+                        var statusText = '';
+                        if(record.status === 'pending') {
+                            statusText = '待审批';
+                        } else if(record.status === 'approved') {
+                            statusText = '已通过';
+                        } else if(record.status === 'rejected') {
+                            statusText = '未通过';
+                        }
+                        
+                        layer.open({
+                            type: 1,
+                            title: '借用记录详情 - ' + record.record_id,
+                            area: ['600px', '400px'],
+                            content: '<div style="padding: 20px;">' +
+                                     '<p><strong>申请编号：</strong>' + record.record_id + '</p>' +
+                                     '<p><strong>教室编号：</strong>' + record.classroom_number + '</p>' +
+                                     '<p><strong>借用日期：</strong>' + record.borrow_date + '</p>' +
+                                     '<p><strong>借用时间：</strong>' + record.start_time + ' - ' + record.end_time + '</p>' +
+                                     '<p><strong>参与人数：</strong>' + record.participants + '人</p>' +
+                                     '<p><strong>申请时间：</strong>' + record.apply_time + '</p>' +
+                                     '<p><strong>审批状态：</strong>' + statusText + '</p>' +
+                                     '<p><strong>借用事由：</strong>' + record.reason + '</p>' +
+                                     '</div>'
+                        });
+                    }
+                });
+            }
+            
+            // 模拟数据（当后端不可用时使用）
+            function getMockClassroomData() {
+                return [
+                    {id: 1, classroom_number: 'A101', capacity: 50, facilities: '多媒体,投影仪', status: 'available'},
+                    {id: 2, classroom_number: 'A102', capacity: 80, facilities: '多媒体,白板', status: 'available'},
+                    {id: 3, classroom_number: 'B201', capacity: 100, facilities: '多媒体,投影仪,白板', status: 'available'},
+                    {id: 4, classroom_number: 'B205', capacity: 60, facilities: '投影仪', status: 'available'},
+                    {id: 5, classroom_number: 'C301', capacity: 120, facilities: '多媒体,投影仪,音响', status: 'available'},
+                    {id: 6, classroom_number: 'C305', capacity: 40, facilities: '白板', status: 'available'}
+                ];
+            }
+            
+            function getMockBorrowRecords() {
+                return [
+                    {record_id: 'R20230001', classroom_number: 'A101', borrow_date: '2023-10-15', start_time: '14:00', end_time: '16:00', participants: 35, apply_time: '2023-10-10 09:30', status: 'approved', reason: '班级会议'},
+                    {record_id: 'R20230002', classroom_number: 'B201', borrow_date: '2023-10-18', start_time: '18:00', end_time: '20:00', participants: 80, apply_time: '2023-10-12 14:20', status: 'pending', reason: '社团活动'},
+                    {record_id: 'R20230003', classroom_number: 'C305', borrow_date: '2023-10-20', start_time: '10:00', end_time: '12:00', participants: 30, apply_time: '2023-10-13 16:45', status: 'rejected', reason: '学术研讨'},
+                    {record_id: 'R20230004', classroom_number: 'A102', borrow_date: '2023-10-22', start_time: '15:00', end_time: '17:00', participants: 60, apply_time: '2023-10-14 11:10', status: 'approved', reason: '项目讨论'},
+                    {record_id: 'R20230005', classroom_number: 'B205', borrow_date: '2023-10-25', start_time: '19:00', end_time: '21:00', participants: 50, apply_time: '2023-10-16 13:25', status: 'pending', reason: '学习小组'}
+                ];
+            }
+            
+            // 初始渲染教室列表（空状态）
+            renderClassroomTable([]);
+        });
+    </script>
+</body>
+</html>

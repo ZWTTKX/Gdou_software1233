@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学工管理系统 - 公告查看</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.6.8/dist/css/layui.min.css">
+    <style>
+        :root {
+            --primary-color: #0f5bbf;
+            --primary-light: #9370db;
+            --primary-dark: #483d8b;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #f5222d;
+            --text-color: #333;
+            --text-light: #666;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航栏 */
+        .header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            height: 60px;
+        }
+        
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin: 0 15px;
+            position: relative;
+        }
+        
+        .nav-item a {
+            display: block;
+            padding: 20px 0;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-item a:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-item.active a {
+            color: var(--primary-color);
+        }
+        
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* 主内容区 */
+        .main-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        /* 公告列表区 */
+        .announcements-section {
+            flex: 1;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .announcements-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: var(--text-color);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 200px;
+        }
+        
+        .search-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .announcements-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .announcement-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .announcement-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .announcement-item.active {
+            background-color: #e6f7ff;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .announcement-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .announcement-summary {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* 公告详情区 */
+        .detail-section {
+            width: 400px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .detail-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .detail-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+        
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-light);
+        }
+        
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .detail-section {
+                width: 100%;
+                order: 3;
+                margin-top: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                height: auto;
+                padding: 15px 20px;
+            }
+            
+            .nav-menu {
+                margin-top: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-item {
+                margin: 5px 10px;
+            }
+            
+            .user-info {
+                margin-top: 15px;
+            }
+            
+            .announcements-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .search-input {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="header">
+        <div class="nav-container">
+            <div class="logo">学工管理系统</div>
+            <ul class="nav-menu">
+                <li class="nav-item active"><a href="#">首页公告</a></li>
+                <li class="nav-item"><a href="classroom.html">教室借用</a></li>
+                <li class="nav-item"><a href="course_exam.html">课程考试</a></li>
+                <li class="nav-item"><a href="leave.html">请假系统</a></li>
+            </ul>
+            <div class="user-info">
+                <div class="user-avatar">张</div>
+                <span>张三 (20230001)</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-container">
+        <!-- 公告列表区 -->
+        <div class="announcements-section">
+            <div class="announcements-header">
+                <h2 class="section-title">系统公告</h2>
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索公告...">
+                    <button class="search-btn" id="searchBtn">搜索</button>
+                </div>
+            </div>
+            
+            <div class="announcements-list" id="announcementsList">
+                <!-- 公告列表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 公告详情区 -->
+        <div class="detail-section">
+            <div class="detail-header">
+                <h3 class="detail-title" id="detailTitle">选择公告查看详情</h3>
+            </div>
+            
+            <div class="detail-content" id="detailContent">
+                <div class="empty-state">
+                    <div class="icon">📄</div>
+                    <p>选择左侧公告查看详细内容</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 简化的公告数据
+        const announcements = [
+            {
+                id: 1,
+                title: "例子1：关于2023-2024学年第二学期期末考试安排的通知",
+                summary: "本学期期末考试将于2024年6月20日至7月5日进行，请各位同学提前做好准备。具体考试安排请登录教务系统查询。",
+                content: `<p>各位同学：</p>
+                         <p>根据学校教学安排，2023-2024学年第二学期期末考试将于<strong>2024年6月20日至7月5日</strong>进行。为确保考试工作顺利进行，现将有关事项通知如下：</p>
+                         <h4>一、考试时间安排</h4>
+                         <p>1. 公共课考试时间：6月20日-6月25日</p>
+                         <p>2. 专业课考试时间：6月26日-7月5日</p>
+                         <h4>二、考试地点</h4>
+                         <p>所有考试均在主教学楼进行，具体考场安排请登录教务系统查询。</p>
+                         <h4>三、注意事项</h4>
+                         <p>1. 考生须携带学生证和身份证参加考试；</p>
+                         <p>2. 考试开始15分钟后不得入场；</p>
+                         <p>3. 严禁携带手机等电子设备进入考场。</p>
+                         <p>请各位同学认真复习，诚信应考，预祝取得优异成绩！</p>`
+            },
+            {
+                id: 2,
+                title: "例子2：学生宿舍空调清洗维护通知",
+                summary: "后勤处将于5月20日至5月25日对学生宿舍空调进行清洗维护，请同学们配合工作。",
+                content: `<p>各位同学：</p>
+                         <p>为保证学生宿舍空调设备的正常运行，后勤处定于<strong>2024年5月20日至5月25日</strong>对学生宿舍空调进行集中清洗和维护。具体安排如下：</p>
+                         <h4>一、清洗时间</h4>
+                         <p>5月20日-5月22日：1-5号楼</p>
+                         <p>5月23日-5月25日：6-10号楼</p>
+                         <h4>二、注意事项</h4>
+                         <p>1. 清洗期间请同学们留人在宿舍配合工作；</p>
+                         <p>2. 请提前收拾好空调周围的物品；</p>
+                         <p>3. 清洗过程中可能会有短时间断电，请提前保存好电脑数据。</p>
+                         <p>感谢同学们的配合与支持！</p>`
+            },
+            
+        ];
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 渲染公告列表
+            renderAnnouncementsList();
+            
+            // 默认选中第一条公告
+            if (announcements.length > 0) {
+                selectAnnouncement(announcements[0].id);
+            }
+            
+            // 搜索按钮点击事件
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                const keyword = document.getElementById('searchInput').value.trim();
+                if (keyword) {
+                    // 搜索逻辑
+                    const filteredAnnouncements = announcements.filter(announcement => 
+                        announcement.title.toLowerCase().includes(keyword.toLowerCase()) ||
+                        announcement.summary.toLowerCase().includes(keyword.toLowerCase()) ||
+                        announcement.content.toLowerCase().includes(keyword.toLowerCase())
+                    );
+                    
+                    renderAnnouncementsList(filteredAnnouncements);
+                    
+                    if (filteredAnnouncements.length > 0) {
+                        selectAnnouncement(filteredAnnouncements[0].id);
+                    } else {
+                        // 清空详情区域
+                        document.getElementById('detailTitle').textContent = "选择公告查看详情";
+                        document.getElementById('detailContent').innerHTML = `
+                            <div class="empty-state">
+                                <div class="icon">📄</div>
+                                <p>没有找到相关公告</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // 如果搜索框为空，显示所有公告
+                    renderAnnouncementsList();
+                    if (announcements.length > 0) {
+                        selectAnnouncement(announcements[0].id);
+                    }
+                }
+            });
+            
+            // 搜索框回车事件
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('searchBtn').click();
+                }
+            });
+        });
+        
+        // 渲染公告列表
+        function renderAnnouncementsList(announcementsToRender = announcements) {
+            const listContainer = document.getElementById('announcementsList');
+            listContainer.innerHTML = '';
+            
+            if (announcementsToRender.length === 0) {
+                listContainer.innerHTML = '<div class="empty-state"><div class="icon">📄</div><p>没有找到相关公告</p></div>';
+                return;
+            }
+            
+            announcementsToRender.forEach(announcement => {
+                const item = document.createElement('div');
+                item.className = 'announcement-item';
+                item.setAttribute('data-id', announcement.id);
+                
+                item.innerHTML = `
+                    <div class="announcement-title">${announcement.title}</div>
+                    <div class="announcement-summary">${announcement.summary}</div>
+                `;
+                
+                item.addEventListener('click', function() {
+                    selectAnnouncement(announcement.id);
+                });
+                
+                listContainer.appendChild(item);
+            });
+        }
+        
+        // 选择公告
+        function selectAnnouncement(id) {
+            // 移除所有公告项的active类
+            document.querySelectorAll('.announcement-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 为选中的公告项添加active类
+            const selectedItem = document.querySelector(`.announcement-item[data-id="${id}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('active');
+            }
+            
+            // 查找选中的公告数据
+            const announcement = announcements.find(item => item.id === id);
+            
+            if (!announcement) return;
+            
+            // 更新详情区域
+            document.getElementById('detailTitle').textContent = announcement.title;
+            document.getElementById('detailContent').innerHTML = announcement.content;
+        }
+    </script>
+</body>
+</html>
